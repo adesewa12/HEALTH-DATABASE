@@ -1,0 +1,43 @@
+--This query retrieves the count of each blood type donated and their respective expiration dates from the Blood Supply table.
+COLUMN EARLYEXPIRATIONDATE FORMAT A20
+SELECT 
+    bloodType,
+    COUNT(*) AS donationCount,
+    MIN(expirationDate) AS earlyExpirationDate
+FROM 
+    BloodSupply BS
+INNER JOIN 
+    MedicalResource MR ON BS.bloodSupplyID = MR.medicalResourceID
+WHERE 
+    bloodType IS NOT NULL
+    AND expirationDate >= SYSDATE
+GROUP BY 
+    bloodType;
+
+
+--Query to retrieve the total number of appointments made by each physician, along with their specialty.
+
+SELECT p.physicianID, p.physician_firstName, p.physician_lastName, p.specialty, COUNT(a.appointmentID) AS total_appointments
+FROM Physician p
+LEFT JOIN Appointment a ON p.physicianID = a.physicianID
+GROUP BY p.physicianID, p.physician_firstName, p.physician_lastName, p.specialty;
+
+--Query to list all patients along with their appointment details, including the physician's last name and appointment date.
+
+SELECT p.studentID, p.firstName, p.lastName, a.appointmentID, ph.physician_lastName, a.appointmentDate
+FROM Patient p
+INNER JOIN Appointment a ON p.studentID = a.studentID
+LEFT JOIN Physician ph ON a.physicianID = ph.physicianID;
+
+
+--Query to find the total number of appointments for patients with primary healthcare insurance and their corresponding physicians' details.
+WITH PrimaryHealthcareInsurance AS (
+    SELECT i.studentID, i.insuranceName, a.physicianID
+    FROM Insurance i
+    INNER JOIN Appointment a ON i.studentID = a.studentID
+    WHERE i.primaryOrSecondary = 'Primary'
+)
+SELECT ph.physicianID, ph.physician_firstName, ph.physician_lastName, COUNT(pa.studentID) AS total_appointments
+FROM Physician ph
+LEFT JOIN PrimaryHealthcareInsurance pa ON ph.physicianID = pa.physicianID
+GROUP BY ph.physicianID, ph.physician_firstName, ph.physician_lastName;

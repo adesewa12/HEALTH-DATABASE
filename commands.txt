@@ -1,0 +1,430 @@
+--creates tables for the SCMS
+
+--Patient
+--drop table in case your db already have Patient table.
+drop TABLE Patient CASCADE CONSTRAINTS; 
+CREATE TABLE Patient (
+    studentID INT PRIMARY KEY,
+    firstName VARCHAR(40) NOT NULL,
+    middleName VARCHAR(40) NOT NULL,
+    lastName VARCHAR(40) NOT NULL,
+    dob DATE NOT NULL,
+    address VARCHAR(200) NOT NULL,
+    phone VARCHAR(50) NOT NULL, 
+    email VARCHAR(50) NOT NULL
+);
+
+--MedicalResource
+--drop table in case your db already have MedicalResource table.
+drop TABLE MedicalResource CASCADE CONSTRAINTS; 
+CREATE TABLE MedicalResource (
+    medicalResourceID INT PRIMARY KEY,
+    itemName VARCHAR(100) NOT NULL,
+    expirationDate DATE NOT NULL,
+    supplier VARCHAR(100) NOT NULL,
+    storageLocation VARCHAR(100) NOT NULL,
+    quantity INT NOT NULL,
+    quantityOnHold INT NOT NULL
+);
+
+--Medicine
+--drop table in case your db already have Medicine table.
+drop TABLE Medicine CASCADE CONSTRAINTS; 
+CREATE TABLE Medicine (
+    medicineID INT PRIMARY KEY,
+    type VARCHAR(100) NOT NULL,
+    details VARCHAR(255) NOT NULL,
+    FOREIGN KEY (medicineID) REFERENCES MedicalResource(medicalResourceID)
+);
+
+--MedicalDevices
+--drop table in case your db already have MedicalDevices table.
+drop TABLE MedicalDevices CASCADE CONSTRAINTS; 
+CREATE TABLE MedicalDevices (
+    medicalDevicesID INT PRIMARY KEY,
+    purchaseDate DATE NOT NULL,
+    purchaseFrom VARCHAR(100) NOT NULL,
+    maintenanceDate DATE NOT NULL,
+    FOREIGN KEY (medicalDevicesID) REFERENCES MedicalResource(medicalResourceID)
+);
+
+--Event
+--drop table in case your db already have Event table.
+drop TABLE Event CASCADE CONSTRAINTS; 
+CREATE TABLE Event (
+    eventID INT PRIMARY KEY,
+    eventName VARCHAR(100) NOT NULL,
+    timeOfEvent TIMESTAMP NOT NULL,
+    eventDate DATE NOT NULL,
+    eventTheme VARCHAR(100) NOT NULL
+);
+
+
+
+--BloodDrive
+--drop table in case your db already have BloodDrive table.
+drop TABLE BloodDrive CASCADE CONSTRAINTS; 
+CREATE TABLE BloodDrive (
+    bloodDriveID INT PRIMARY KEY,
+    statusHIV CHAR(1) NOT NULL,
+    sickleCell CHAR(1) NOT NULL,
+    historyOfDisease VARCHAR(255) NOT NULL,
+    FOREIGN KEY (bloodDriveID) REFERENCES Event(eventID)
+);
+
+--EmergencyContact
+--drop table in case your db already have EmergencyContact table.
+drop TABLE EmergencyContact CASCADE CONSTRAINTS; 
+CREATE TABLE EmergencyContact (
+    studentID INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    relation VARCHAR(50) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    FOREIGN KEY (studentID) REFERENCES Patient(studentID)
+);
+
+--Records
+--drop table in case your db already have Records table.
+drop TABLE Records CASCADE CONSTRAINTS; 
+CREATE TABLE Records (
+    recordID INT PRIMARY KEY,
+    studentID INT NOT NULL,
+    recordDate DATE NOT NULL,
+    treatment VARCHAR(255) NOT NULL,
+    FOREIGN KEY (studentID) REFERENCES Patient(studentID)
+);
+
+--Insurance
+--drop table in case your db already have Insurance table.
+drop TABLE Insurance CASCADE CONSTRAINTS; 
+CREATE TABLE Insurance (
+    insuranceName VARCHAR(100) NOT NULL,
+    studentID INT NOT NULL,
+    policyID VARCHAR(50) NOT NULL,
+    groupID VARCHAR(50) NOT NULL,
+    memberID VARCHAR(50) NOT NULL,
+    contact VARCHAR(100) NOT NULL,
+    primaryOrSecondary VARCHAR(20) NOT NULL,
+    FOREIGN KEY (studentID) REFERENCES Patient(studentID)
+);
+
+--Vaccinations
+--drop table in case your db already have Vaccinations table.
+drop TABLE Vaccinations CASCADE CONSTRAINTS; 
+CREATE TABLE Vaccinations (
+    vaccineName VARCHAR(100) NOT NULL,
+    studentID INT NOT NULL,
+    dateGiven DATE NOT NULL,
+    isMandatory Char(1) NOT NULL,
+    administeredBy VARCHAR(100) NOT NULL,
+    FOREIGN KEY (studentID) REFERENCES Patient(studentID)
+);
+
+--MinorPatient
+--drop table in case your db already have MinorPatient table.
+drop TABLE MinorPatient CASCADE CONSTRAINTS; 
+CREATE TABLE MinorPatient (
+    minorPatientID INT NOT NULL,
+    FOREIGN KEY (minorPatientID) REFERENCES Patient(studentID)
+);
+
+--LegalGuardian
+--drop table in case your db already have LegalGuardian table.
+drop TABLE LegalGuardian CASCADE CONSTRAINTS; 
+CREATE TABLE LegalGuardian (
+    minorPatientID INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    dateOfBirth DATE NOT NULL,
+    primaryModeOfContact VARCHAR(20) NOT NULL,
+    relationToPatient VARCHAR(50) NOT NULL,
+    FOREIGN KEY (minorPatientID) REFERENCES Patient(studentID)
+);
+
+--Physician
+--drop table in case your db already have Physician table.
+drop TABLE Physician CASCADE CONSTRAINTS; 
+CREATE TABLE Physician (
+    physicianID INT PRIMARY KEY,
+    physician_firstName VARCHAR(50) NOT NULL,
+    physician_lastName VARCHAR(50) NOT NULL,
+    medicalLicense VARCHAR(100) NOT NULL,
+    specialty VARCHAR(100) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    email VARCHAR(100) NOT NULL
+);
+
+--Appointment
+--drop table in case your db already have Appointment table.
+drop TABLE Appointment CASCADE CONSTRAINTS; 
+CREATE TABLE Appointment (
+    appointmentID INT PRIMARY KEY,
+    studentID INT NOT NULL,
+    physicianID INT NOT NULL,
+    appointmentDate DATE NOT NULL,
+    FOREIGN KEY (studentID) REFERENCES Patient(studentID),
+    FOREIGN KEY (physicianID) REFERENCES Physician(physicianID)
+);
+
+--AppointmentReservedResource
+--drop table in case your db already have AppointmentReservedResource table.
+drop TABLE AppointmentReservedResource CASCADE CONSTRAINTS; 
+CREATE TABLE AppointmentReservedResource (
+    appointmentID INT NOT NULL,
+    medicalResourceID INT NULL ,
+    reservedResource CHAR(1) NOT NULL,
+    FOREIGN KEY (appointmentID) REFERENCES Appointment(appointmentID),
+    FOREIGN KEY (medicalResourceID) REFERENCES MedicalResource(medicalResourceID)
+);
+
+
+--BloodSupply
+ --drop table in case your db already have BloodSupply table.
+drop TABLE BloodSupply CASCADE CONSTRAINTS;
+CREATE TABLE BloodSupply (
+    bloodSupplyID INT PRIMARY KEY,
+    bloodDriveID INT NOT NULL,
+    bloodType VARCHAR(10) NOT NULL,
+    hemoglobinLevel DECIMAL(5,2) NOT NULL,
+    rhValue VARCHAR(10) NOT NULL,
+    bloodAmount INT NOT NULL,
+    dateReceived DATE NOT NULL,
+    FOREIGN KEY (bloodSupplyID) REFERENCES MedicalResource(medicalResourceID),
+    FOREIGN KEY (bloodDriveID) REFERENCES Event(eventID)
+);
+
+-- Insert commands for Patient table
+INSERT INTO Patient (studentID, firstName, middleName, lastName, dob, address, phone, email) VALUES (10001, 'John', 'Robert', 'Doe', DATE '2005-03-15', '123 Main St, Anytown, USA', '12125550101', 'john.doe@example.com');
+INSERT INTO Patient (studentID, firstName, middleName, lastName, dob, address, phone, email) VALUES(10002, 'Emily', 'Anne', 'Smith', DATE '2006-07-20', '456 Elm St, Othertown, USA', '12125550102', 'emily.smith@example.com');
+INSERT INTO Patient (studentID, firstName, middleName, lastName, dob, address, phone, email) VALUES(10003, 'Michael', 'James', 'Johnson', DATE '2007-01-10', '789 Oak St, Anycity, USA', '12125550103', 'michael.johnson@example.com');
+INSERT INTO Patient (studentID, firstName, middleName, lastName, dob, address, phone, email) VALUES(10004, 'Sarah', 'Grace', 'Williams', DATE '2008-05-05', '321 Maple St, Otherville, USA', '12125550104', 'sarah.williams@example.com');
+INSERT INTO Patient (studentID, firstName, middleName, lastName, dob, address, phone, email) VALUES(10005, 'Matthew', 'David', 'Brown', DATE '2009-09-18', '654 Pine St, Somecity, USA', '12125550105', 'matthew.brown@example.com');
+INSERT INTO Patient (studentID, firstName, middleName, lastName, dob, address, phone, email) VALUES(10006, 'Olivia', 'Nicole', 'Jones', DATE '2010-11-30', '987 Cedar St, Anothertown, USA', '12125550106', 'olivia.jones@example.com');
+INSERT INTO Patient (studentID, firstName, middleName, lastName, dob, address, phone, email) VALUES(10007, 'Daniel', 'Andrew', 'Garcia', DATE '2011-04-25', '741 Birch St, Somewhere, USA', '12125550107', 'daniel.garcia@example.com');
+INSERT INTO Patient (studentID, firstName, middleName, lastName, dob, address, phone, email) VALUES(10008, 'Emma', 'Elizabeth', 'Martinez', DATE '2012-08-12', '852 Walnut St, Anywhere, USA', '12125550108', 'emma.martinez@example.com');
+INSERT INTO Patient (studentID, firstName, middleName, lastName, dob, address, phone, email) VALUES(10009, 'Christopher', 'Ryan', 'Hernandez', DATE '2013-10-05', '369 Spruce St, Anothercity, USA', '12125550109', 'christopher.hernandez@example.com');
+INSERT INTO Patient (studentID, firstName, middleName, lastName, dob, address, phone, email) VALUES(10010, 'Ava', 'Isabella', 'Young', DATE '2014-12-20', '159 Fir St, Someplace, USA', '12125550110', 'ava.young@example.com');
+
+-- Insert commands for Physician table
+INSERT INTO Physician (physicianID, physician_firstName, physician_lastName, medicalLicense, specialty, phone, email) VALUES (5001, 'John', 'Smith', 'PA12345', 'Pediatrics', '1234567890', 'drjohn@example.com');
+INSERT INTO Physician (physicianID, physician_firstName, physician_lastName, medicalLicense, specialty, phone, email) VALUES (5002, 'Emily', 'Johnson', 'GP67890', 'General Practice', '2345678901', 'dremily@example.com');
+INSERT INTO Physician (physicianID, physician_firstName, physician_lastName, medicalLicense, specialty, phone, email) VALUES (5003, 'Michael', 'Williams', 'FA12378', 'Family Medicine', '3456789012', 'drwilliams@example.com');
+INSERT INTO Physician (physicianID, physician_firstName, physician_lastName, medicalLicense, specialty, phone, email) VALUES (5004, 'Sarah', 'Brown', 'IM90783', 'Internal Medicine', '4567890123', 'drsbrown@example.com');
+INSERT INTO Physician (physicianID, physician_firstName, physician_lastName, medicalLicense, specialty, phone, email) VALUES (5005, 'Jennifer', 'Garcia', 'PS87543', 'Psychiatry', '5678901234', 'drjgarcia@example.com');
+INSERT INTO Physician (physicianID, physician_firstName, physician_lastName, medicalLicense, specialty, phone, email) VALUES (5006, 'David', 'Martinez', 'CN23456', 'Cardiology', '6789012345', 'drdmartinez@example.com');
+INSERT INTO Physician (physicianID, physician_firstName, physician_lastName, medicalLicense, specialty, phone, email) VALUES (5007, 'Jessica', 'Hernandez', 'OB45678', 'Obstetrics and Gynecology', '7890123456', 'drjhernandez@example.com');
+INSERT INTO Physician (physicianID, physician_firstName, physician_lastName, medicalLicense, specialty, phone, email) VALUES (5008, 'Daniel', 'Young', 'NS56378', 'Neurology', '8901234567', 'drdyoung@example.com');
+INSERT INTO Physician (physicianID, physician_firstName, physician_lastName, medicalLicense, specialty, phone, email) VALUES (5009, 'Amanda', 'Clark', 'SU23478', 'Surgery', '9012345678', 'dramanda@example.com');
+INSERT INTO Physician (physicianID, physician_firstName, physician_lastName, medicalLicense, specialty, phone, email) VALUES (5010, 'Kevin', 'Lee', 'OR76543', 'Orthopedics', '1234567890', 'drklee@example.com');
+
+-- Insert commands for MedicalResource table
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3001, 'Bandages', DATE '2025-12-31', 'Medical Supply Co.', 'Clinic Storage Room 1', 500, 50);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3002, 'Thermometers', DATE '2025-12-31', 'MedTech Supplies', 'Clinic Storage Room 2', 100, 10);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3003, 'Syringes', DATE '2025-12-31', 'Healthcare Solutions Inc.', 'Clinic Storage Room 3', 1000, 100);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3004, 'Cotton Swabs', DATE '2025-12-31', 'MediCare Distributors', 'Clinic Storage Room 1', 2000, 200);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3005, 'Gloves', DATE '2025-12-31', 'Safety Health Corp.', 'Clinic Storage Room 2', 800, 80);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3006, 'Disinfectant Solution', DATE '2025-12-31', 'Hygiene Products Ltd.', 'Clinic Storage Room 3', 300, 30);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3007, 'Medical Bench', DATE '2025-12-31', 'Pharma World Inc.', 'Clinic Storage Room 1', 400, 40);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3008, 'First Aid Kits', DATE '2025-12-31', 'Emergency Medical Supplies', 'Clinic Storage Room 2', 50, 5);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3009, 'Blood Pressure Monitors', DATE '2025-12-31', 'MediTech Innovations', 'Clinic Storage Room 3', 50, 5);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3010, 'Stethoscopes', DATE '2025-12-31', 'Medical Instruments Ltd.', 'Clinic Storage Room 1', 30, 3);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3011, 'Blood', DATE '2025-06-30', 'Donation', 'Blood Bank A', 50, 5);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3012, 'Blood', DATE '2025-09-15', 'Donation', 'Blood Bank B', 70, 2);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3013, 'Blood', DATE '2025-10-20', 'Donation', 'Blood Bank A', 60, 8);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3014, 'Blood', DATE '2025-07-10', 'Donation', 'Blood Bank D', 80, 6);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3015, 'Blood', DATE '2025-08-25', 'Donation', 'Blood Bank A', 90, 4);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3016, 'Blood', DATE '2025-11-05', 'Donation', 'Blood Bank B', 55, 3);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3017, 'Blood', DATE '2025-06-15', 'Donation', 'Blood Bank B', 75, 7);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3018, 'Blood', DATE '2025-10-30', 'Donation', 'Blood Bank C', 65, 2);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3019, 'Blood', DATE '2025-12-05', 'Donation', 'Blood Bank A', 85, 6);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3020, 'Blood', DATE '2025-07-20', 'Donation', 'Blood Bank B', 100, 10);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3021, 'Oral', DATE '2025-06-30', 'Donation', 'Pharmacy A', 50, 5);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3022, 'Topical', DATE '2025-09-15', 'Donation', 'Pharmacy B', 70, 2);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3023, 'Injectable', DATE '2025-10-20', 'Donation', 'Pharmacy C', 60, 8);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3024, 'Inhalation', DATE '2025-07-10', 'Donation', 'Pharmacy D', 80, 6);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3025, 'Rectal', DATE '2025-08-25', 'Donation', 'Pharmacy E', 90, 4);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3026, 'Intramuscular', DATE '2025-11-05', 'Donation', 'Pharmacy F', 55, 3);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3027, 'Ophthalmic', DATE '2025-06-15', 'Donation', 'Pharmacy G', 75, 7);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3028, 'Nasal', DATE '2025-10-30', 'Donation', 'Pharmacy H', 65, 2);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3029, 'Vaginal', DATE '2025-12-05', 'Donation', 'Pharmacy I', 85, 6);
+INSERT INTO MedicalResource (medicalResourceID, itemName, expirationDate, supplier, storageLocation, quantity, quantityOnHold) VALUES (3030, 'Sublingual', DATE '2025-07-20', 'Donation', 'Pharmacy J', 100, 10);
+
+
+
+-- Insert commands for Appointment table
+INSERT INTO Appointment (appointmentID, studentID, physicianID, appointmentDate) VALUES (6001, 10001, 5001, DATE '2023-01-10');
+INSERT INTO Appointment (appointmentID, studentID, physicianID, appointmentDate) VALUES(6002, 10002, 5002, DATE '2023-02-15');
+INSERT INTO Appointment (appointmentID, studentID, physicianID, appointmentDate) VALUES(6003, 10003, 5003, DATE '2023-03-20');
+INSERT INTO Appointment (appointmentID, studentID, physicianID, appointmentDate) VALUES(6004, 10004, 5004, DATE '2023-04-25');
+INSERT INTO Appointment (appointmentID, studentID, physicianID, appointmentDate) VALUES(6005, 10005, 5005, DATE '2023-05-30');
+INSERT INTO Appointment (appointmentID, studentID, physicianID, appointmentDate) VALUES(6006, 10006, 5006, DATE '2023-06-05');
+INSERT INTO Appointment (appointmentID, studentID, physicianID, appointmentDate) VALUES(6007, 10007, 5007, DATE '2023-07-10');
+INSERT INTO Appointment (appointmentID, studentID, physicianID, appointmentDate) VALUES(6008, 10008, 5008, DATE '2023-08-15');
+INSERT INTO Appointment (appointmentID, studentID, physicianID, appointmentDate) VALUES(6009, 10009, 5009, DATE '2023-09-20');
+INSERT INTO Appointment (appointmentID, studentID, physicianID, appointmentDate) VALUES(6010, 10010, 5010, DATE '2023-10-25');
+
+
+-- Insert commands for AppointmentReservedResource table
+INSERT INTO AppointmentReservedResource (appointmentID, medicalResourceID, reservedResource) VALUES (6001, 3001, 'Y');
+INSERT INTO AppointmentReservedResource (appointmentID, medicalResourceID, reservedResource) VALUES (6002, NULL, 'N');
+INSERT INTO AppointmentReservedResource (appointmentID, medicalResourceID, reservedResource) VALUES (6003, 3003, 'Y');
+INSERT INTO AppointmentReservedResource (appointmentID, medicalResourceID, reservedResource) VALUES (6004, NULL, 'N');
+INSERT INTO AppointmentReservedResource (appointmentID, medicalResourceID, reservedResource) VALUES (6005, 3005, 'Y');
+INSERT INTO AppointmentReservedResource (appointmentID, medicalResourceID, reservedResource) VALUES (6006, 3006, 'Y');
+INSERT INTO AppointmentReservedResource (appointmentID, medicalResourceID, reservedResource) VALUES (6007, NULL, 'N');
+INSERT INTO AppointmentReservedResource (appointmentID, medicalResourceID, reservedResource) VALUES (6008, 3008, 'Y');
+INSERT INTO AppointmentReservedResource (appointmentID, medicalResourceID, reservedResource) VALUES (6009, NULL, 'N');
+INSERT INTO AppointmentReservedResource (appointmentID, medicalResourceID, reservedResource) VALUES (6010, 3010, 'Y');
+
+-- Insert commands for Event table
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES (1001, 'Flu Vaccination Drive', TIMESTAMP '2023-10-15 10:00:00', DATE '2023-10-15', 'Preventing Flu Outbreaks');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1002, 'Blood Donation Camp', TIMESTAMP '2023-11-20 09:00:00', DATE '2023-11-20', 'Saving Lives Through Donations');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1003, 'Health Awareness Seminar', TIMESTAMP '2023-12-05 14:00:00', DATE '2023-12-05', 'Promoting Healthy Lifestyles');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1004, 'Dental Check-up Camp', TIMESTAMP '2023-12-20 11:00:00', DATE '2023-12-20', 'Oral Health Awareness');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1005, 'Eye Check-up Camp', TIMESTAMP '2024-01-10 10:30:00', DATE '2024-01-10', 'Vision Care');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1006, 'Sports Injury Prevention Workshop', TIMESTAMP '2024-02-15 15:00:00', DATE '2024-02-15', 'Safe Sports Practices');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1007, 'Nutrition and Diet Counseling Session', TIMESTAMP '2024-03-05 12:00:00', DATE '2024-03-05', 'Healthy Eating Habits');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1008, 'Mental Health Awareness Campaign', TIMESTAMP '2024-04-10 13:30:00', DATE '2024-04-10', 'Destigmatizing Mental Health');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1009, 'First Aid Training Program', TIMESTAMP '2024-05-20 09:30:00', DATE '2024-05-20', 'Emergency Preparedness');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1010, 'Cancer Screening Drive', TIMESTAMP '2024-06-15 08:00:00', DATE '2024-06-15', 'Early Detection Saves Lives');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1020, 'Blood Drive', TIMESTAMP '2024-06-15 08:00:00', DATE '2024-06-15', 'Early Detection Saves Lives');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1011, 'Blood Drive', TIMESTAMP '2024-07-20 09:00:00', DATE '2024-07-20', 'Give the Gift of Life');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1012, 'Blood Drive', TIMESTAMP '2024-08-10 10:00:00', DATE '2024-08-10', 'Promoting Healthy Lifestyles');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1013, 'Blood Drive', TIMESTAMP '2024-09-05 11:00:00', DATE '2024-09-05', 'Protecting Our Community');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1014, 'Blood Drive', TIMESTAMP '2024-10-12 12:00:00', DATE '2024-10-12', 'Vision for All');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1015, 'Blood Drive', TIMESTAMP '2024-11-18 13:00:00', DATE '2024-11-18', 'Smile Bright, Smile Healthy');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1016, 'Blood Drive', TIMESTAMP '2024-12-05 14:00:00', DATE '2024-12-05', 'Keeping Our Environment Clean');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1017, 'Blood Drive', TIMESTAMP '2025-01-15 15:00:00', DATE '2025-01-15', 'Healthy Eating Habits');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1018, 'Blood Drive', TIMESTAMP '2025-02-20 16:00:00', DATE '2025-02-20', 'Get Fit, Stay Active');
+INSERT INTO Event (eventID, eventName, timeOfEvent, eventDate, eventTheme) VALUES(1019, 'Blood Drive', TIMESTAMP '2025-03-10 17:00:00', DATE '2025-03-10', 'Breaking the Stigma');
+
+-- Insert commands for BloodSupply table
+INSERT INTO BloodSupply (bloodSupplyID, bloodDriveID, bloodType, hemoglobinLevel, rhValue, bloodAmount, dateReceived) VALUES (3011, 1011, 'A+', 15.5, '+', 100, DATE '2023-01-10');
+INSERT INTO BloodSupply (bloodSupplyID, bloodDriveID, bloodType, hemoglobinLevel, rhValue, bloodAmount, dateReceived) VALUES(3012, 1012, 'B-', 13.2, '-', 150, DATE '2023-02-15');
+INSERT INTO BloodSupply (bloodSupplyID, bloodDriveID, bloodType, hemoglobinLevel, rhValue, bloodAmount, dateReceived) VALUES(3013, 1013, 'O+', 16.8, '+', 120, DATE '2023-03-20');
+INSERT INTO BloodSupply (bloodSupplyID, bloodDriveID, bloodType, hemoglobinLevel, rhValue, bloodAmount, dateReceived) VALUES(3014, 1014, 'AB-', 14.5, '-', 80, DATE '2023-04-25');
+INSERT INTO BloodSupply (bloodSupplyID, bloodDriveID, bloodType, hemoglobinLevel, rhValue, bloodAmount, dateReceived) VALUES(3015, 1015, 'A-', 12.6, '-', 200, DATE '2023-05-30');
+INSERT INTO BloodSupply (bloodSupplyID, bloodDriveID, bloodType, hemoglobinLevel, rhValue, bloodAmount, dateReceived) VALUES(3016, 1016, 'B+', 14.9, '+', 90, DATE '2023-06-05');
+INSERT INTO BloodSupply (bloodSupplyID, bloodDriveID, bloodType, hemoglobinLevel, rhValue, bloodAmount, dateReceived) VALUES(3017, 1017, 'O-', 11.8, '-', 110, DATE '2023-07-10');
+INSERT INTO BloodSupply (bloodSupplyID, bloodDriveID, bloodType, hemoglobinLevel, rhValue, bloodAmount, dateReceived) VALUES(3018, 1018, 'AB+', 17.2, '+', 70, DATE '2023-08-15');
+INSERT INTO BloodSupply (bloodSupplyID, bloodDriveID, bloodType, hemoglobinLevel, rhValue, bloodAmount, dateReceived) VALUES(3019, 1019, 'A-', 12.3, '-', 180, DATE '2023-09-20');
+INSERT INTO BloodSupply (bloodSupplyID, bloodDriveID, bloodType, hemoglobinLevel, rhValue, bloodAmount, dateReceived) VALUES(3020, 1020, 'O-', 11.5, '-', 130, DATE '2023-10-25');
+
+
+-- Insert commands for Medicine table
+INSERT INTO Medicine (medicineID, type, details) VALUES (3021, 'Oral', 'Medicine for headaches');
+INSERT INTO Medicine (medicineID, type, details) VALUES (3022, 'Topical', 'Skin cream for rashes');
+INSERT INTO Medicine (medicineID, type, details) VALUES (3023, 'Intravenous', 'Injectable medicine for allergies');
+INSERT INTO Medicine (medicineID, type, details) VALUES (3024, 'Inhalation', 'Medicine for asthma');
+INSERT INTO Medicine (medicineID, type, details) VALUES (3025, 'Rectal', 'Suppository for fever');
+INSERT INTO Medicine (medicineID, type, details) VALUES (3026, 'Intramuscular', 'Vaccine for flu');
+INSERT INTO Medicine (medicineID, type, details) VALUES (3027, 'Ophthalmic', 'Eye drops for allergies');
+INSERT INTO Medicine (medicineID, type, details) VALUES (3028, 'Nasal', 'Spray for congestion');
+INSERT INTO Medicine (medicineID, type, details) VALUES (3029, 'Vaginal', 'Tablet for yeast infection');
+INSERT INTO Medicine (medicineID, type, details) VALUES (3030, 'Sublingual', 'Dissolvable tablet for allergies');
+
+
+
+-- Insert commands for MedicalDevices table
+INSERT INTO MedicalDevices (medicalDevicesID, purchaseDate, purchaseFrom, maintenanceDate) VALUES (3001, TO_DATE('2025-12-31', 'YYYY-MM-DD'), 'Medical Supplies Inc.', TO_DATE('2026-02-01', 'YYYY-MM-DD'));
+INSERT INTO MedicalDevices (medicalDevicesID, purchaseDate, purchaseFrom, maintenanceDate) VALUES(3002, TO_DATE('2025-12-31', 'YYYY-MM-DD'), 'Medical Equipment Corp.', TO_DATE('2026-01-10', 'YYYY-MM-DD'));
+INSERT INTO MedicalDevices (medicalDevicesID, purchaseDate, purchaseFrom, maintenanceDate) VALUES(3003, TO_DATE('2025-12-31', 'YYYY-MM-DD'), 'Health Solutions Ltd.', TO_DATE('2026-03-01', 'YYYY-MM-DD'));
+INSERT INTO MedicalDevices (medicalDevicesID, purchaseDate, purchaseFrom, maintenanceDate) VALUES(3004, TO_DATE('2025-12-31', 'YYYY-MM-DD'), 'MediTech Supplies', TO_DATE('2027-03-20', 'YYYY-MM-DD'));
+INSERT INTO MedicalDevices (medicalDevicesID, purchaseDate, purchaseFrom, maintenanceDate) VALUES(3005, TO_DATE('2025-12-31', 'YYYY-MM-DD'), 'Pharma Equipment Co.', TO_DATE('2026-05-01', 'YYYY-MM-DD'));
+INSERT INTO MedicalDevices (medicalDevicesID, purchaseDate, purchaseFrom, maintenanceDate) VALUES(3006, TO_DATE('2025-12-31', 'YYYY-MM-DD'), 'Medical Devices LLC', TO_DATE('2026-06-10', 'YYYY-MM-DD'));
+INSERT INTO MedicalDevices (medicalDevicesID, purchaseDate, purchaseFrom, maintenanceDate) VALUES(3008, TO_DATE('2025-06-15', 'YYYY-MM-DD'), 'Healthcare Solutions Inc.', TO_DATE('2026-07-01', 'YYYY-MM-DD'));
+INSERT INTO MedicalDevices (medicalDevicesID, purchaseDate, purchaseFrom, maintenanceDate) VALUES(3009, TO_DATE('2025-07-10', 'YYYY-MM-DD'), 'MediSupplies Corp.', TO_DATE('2026-08-01', 'YYYY-MM-DD'));
+INSERT INTO MedicalDevices (medicalDevicesID, purchaseDate, purchaseFrom, maintenanceDate) VALUES(3010, TO_DATE('2025-08-05', 'YYYY-MM-DD'), 'PharmaTech Ltd.', TO_DATE('2026-09-01', 'YYYY-MM-DD'));
+INSERT INTO MedicalDevices (medicalDevicesID, purchaseDate, purchaseFrom, maintenanceDate) VALUES(3007, TO_DATE('2025-09-20', 'YYYY-MM-DD'), 'Medical Innovations', TO_DATE('2026-10-10', 'YYYY-MM-DD'));
+
+
+
+-- Insert commands for BloodDrive table
+INSERT INTO BloodDrive (bloodDriveID, statusHIV, sickleCell, historyOfDisease) VALUES (1011, 'N', 'N', 'No history of diseases or infections reported');
+INSERT INTO BloodDrive (bloodDriveID, statusHIV, sickleCell, historyOfDisease) VALUES(1012, 'N', 'Y', 'Sickle cell trait detected in some donors');
+INSERT INTO BloodDrive (bloodDriveID, statusHIV, sickleCell, historyOfDisease) VALUES(1013, 'Y', 'N', 'Potential risk of HIV transmission in a few cases');
+INSERT INTO BloodDrive (bloodDriveID, statusHIV, sickleCell, historyOfDisease) VALUES(1014, 'N', 'N', 'No significant medical issues reported in previous drives');
+INSERT INTO BloodDrive (bloodDriveID, statusHIV, sickleCell, historyOfDisease) VALUES(1015, 'N', 'Y', 'Some donors had a history of sickle cell anemia');
+INSERT INTO BloodDrive (bloodDriveID, statusHIV, sickleCell, historyOfDisease) VALUES(1020, 'Y', 'Y', 'Previous instances of HIV and sickle cell cases reported');
+INSERT INTO BloodDrive (bloodDriveID, statusHIV, sickleCell, historyOfDisease) VALUES(1016, 'N', 'N', 'All donors screened negative for HIV and sickle cell');
+INSERT INTO BloodDrive (bloodDriveID, statusHIV, sickleCell, historyOfDisease) VALUES(1017, 'Y', 'Y', 'High prevalence of HIV and sickle cell traits observed');
+INSERT INTO BloodDrive (bloodDriveID, statusHIV, sickleCell, historyOfDisease) VALUES(1018, 'Y', 'N', 'Potential risk of HIV infection identified');
+INSERT INTO BloodDrive (bloodDriveID, statusHIV, sickleCell, historyOfDisease) VALUES(1019, 'N', 'N', 'No adverse events reported in past blood drives');
+
+
+-- Insert commands for EmergencyContact table
+INSERT INTO EmergencyContact (studentID, name, relation, phone, email) VALUES (10001, 'Jane Doe', 'Mother', '12125550111', 'jane.doe@example.com');
+INSERT INTO EmergencyContact (studentID, name, relation, phone, email) VALUES (10002, 'Mary Smith', 'Mother', '12125550112', 'mary.smith@example.com');
+INSERT INTO EmergencyContact (studentID, name, relation, phone, email) VALUES (10003, 'David Johnson', 'Father', '12125550113', 'david.johnson@example.com');
+INSERT INTO EmergencyContact (studentID, name, relation, phone, email) VALUES (10004, 'Jessica Williams', 'Mother', '12125550114', 'jessica.williams@example.com');
+INSERT INTO EmergencyContact (studentID, name, relation, phone, email) VALUES (10005, 'Richard Brown', 'Father', '12125550115', 'richard.brown@example.com');
+INSERT INTO EmergencyContact (studentID, name, relation, phone, email) VALUES (10006, 'Carol Jones', 'Guardian', '12125550116', 'carol.jones@example.com');
+INSERT INTO EmergencyContact (studentID, name, relation, phone, email) VALUES (10007, 'James Garcia', 'Father', '12125550117', 'james.garcia@example.com');
+INSERT INTO EmergencyContact (studentID, name, relation, phone, email) VALUES (10008, 'Maria Martinez', 'Mother', '12125550118', 'maria.martinez@example.com');
+INSERT INTO EmergencyContact (studentID, name, relation, phone, email) VALUES (10009, 'Luis Hernandez', 'Father', '12125550119', 'luis.hernandez@example.com');
+INSERT INTO EmergencyContact (studentID, name, relation, phone, email) VALUES (10010, 'Sophia Young', 'Mother', '12125550120', 'sophia.young@example.com');
+
+
+-- Insert commands for Records table
+INSERT INTO Records (recordID, studentID, recordDate, treatment) VALUES (4001, 10001, DATE '2023-05-10','Routine check-up and vaccination');
+INSERT INTO Records (recordID, studentID, recordDate, treatment) VALUES(4002, 10002, DATE '2023-06-20','Treatment for flu symptoms');
+INSERT INTO Records (recordID, studentID, recordDate, treatment) VALUES(4003, 10003, DATE '2023-07-15','Physical examination and medication prescription');
+INSERT INTO Records (recordID, studentID, recordDate, treatment) VALUES(4004, 10004, DATE '2023-08-05','Dressing change for wound care');
+INSERT INTO Records (recordID, studentID, recordDate, treatment) VALUES(4005, 10005, DATE '2023-09-12','Blood pressure monitoring and health assessment');
+INSERT INTO Records (recordID, studentID, recordDate, treatment) VALUES(4006, 10006, DATE '2023-10-25','Follow-up appointment for chronic condition management');
+INSERT INTO Records (recordID, studentID, recordDate, treatment) VALUES(4007, 10007, DATE '2023-11-30','Treatment for allergic reaction');
+INSERT INTO Records (recordID, studentID, recordDate, treatment) VALUES(4008, 10008, DATE '2023-12-18','Dental check-up and cleaning');
+INSERT INTO Records (recordID, studentID, recordDate, treatment) VALUES(4009, 10009, DATE '2024-01-22','Mental health counseling session');
+INSERT INTO Records (recordID, studentID, recordDate, treatment) VALUES(4010, 10010, DATE '2024-02-14','Consultation for sports injury rehabilitation');
+
+-- Insert commands for Insurance table
+INSERT INTO Insurance (insuranceName, studentID, policyID, groupID, memberID, contact, primaryOrSecondary) VALUES ('Blue Cross Blue Shield', 10001, 'ABC123', 'G456', 'M789', 'insurance@provider.com', 'Primary');
+INSERT INTO Insurance (insuranceName, studentID, policyID, groupID, memberID, contact, primaryOrSecondary) VALUES('Aetna', 10002, 'DEF456', 'H789', 'N123', 'aetna@provider.com', 'Primary');
+INSERT INTO Insurance (insuranceName, studentID, policyID, groupID, memberID, contact, primaryOrSecondary) VALUES('Cigna', 10003, 'GHI789', 'I234', 'O456', 'cigna@provider.com', 'Primary');
+INSERT INTO Insurance (insuranceName, studentID, policyID, groupID, memberID, contact, primaryOrSecondary) VALUES('UnitedHealthcare', 10004, 'JKL012', 'J345', 'P789', 'uhc@provider.com', 'Primary');
+INSERT INTO Insurance (insuranceName, studentID, policyID, groupID, memberID, contact, primaryOrSecondary) VALUES('Humana', 10005, 'MNO345', 'K567', 'Q012', 'humana@provider.com', 'Primary');
+INSERT INTO Insurance (insuranceName, studentID, policyID, groupID, memberID, contact, primaryOrSecondary) VALUES('Anthem', 10006, 'PQR678', 'L890', 'R345', 'anthem@provider.com', 'Primary');
+INSERT INTO Insurance (insuranceName, studentID, policyID, groupID, memberID, contact, primaryOrSecondary) VALUES('Kaiser Permanente', 10007, 'STU901', 'M234', 'S678', 'kaiser@provider.com', 'Primary');
+INSERT INTO Insurance (insuranceName, studentID, policyID, groupID, memberID, contact, primaryOrSecondary) VALUES('Molina Healthcare', 10008, 'VWX234', 'N567', 'T901', 'molina@provider.com', 'Primary');
+INSERT INTO Insurance (insuranceName, studentID, policyID, groupID, memberID, contact, primaryOrSecondary) VALUES('MetLife', 10009, 'YZA567', 'O890', 'U234', 'metlife@provider.com', 'Primary');
+INSERT INTO Insurance (insuranceName, studentID, policyID, groupID, memberID, contact, primaryOrSecondary) VALUES('GEICO', 10010, 'BCD890', 'P123', 'V567', 'geico@provider.com', 'Primary');
+
+-- Insert commands for Vaccinations table
+INSERT INTO Vaccinations (vaccineName, studentID, dateGiven, isMandatory, administeredBy) VALUES ('MMR', 10001, DATE '2023-01-05', 'Y', 'School Nurse');
+INSERT INTO Vaccinations (vaccineName, studentID, dateGiven, isMandatory, administeredBy) VALUES('Polio', 10002, DATE '2023-02-10', 'Y', 'School Nurse');
+INSERT INTO Vaccinations (vaccineName, studentID, dateGiven, isMandatory, administeredBy) VALUES('Hepatitis B', 10003, DATE '2023-03-15', 'Y', 'School Nurse');
+INSERT INTO Vaccinations (vaccineName, studentID, dateGiven, isMandatory, administeredBy) VALUES('DTaP', 10004, DATE '2023-04-20', 'Y', 'School Nurse');
+INSERT INTO Vaccinations (vaccineName, studentID, dateGiven, isMandatory, administeredBy) VALUES('Varicella', 10005, DATE '2023-05-25', 'Y', 'School Nurse');
+INSERT INTO Vaccinations (vaccineName, studentID, dateGiven, isMandatory, administeredBy) VALUES('HPV', 10006, DATE '2023-06-30', 'N', 'School Nurse');
+INSERT INTO Vaccinations (vaccineName, studentID, dateGiven, isMandatory, administeredBy) VALUES('Meningococcal', 10007, DATE '2023-07-30', 'N', 'School Nurse');
+INSERT INTO Vaccinations (vaccineName, studentID, dateGiven, isMandatory, administeredBy) VALUES('Influenza', 10008, DATE '2023-08-15', 'N', 'School Nurse');
+INSERT INTO Vaccinations (vaccineName, studentID, dateGiven, isMandatory, administeredBy) VALUES('Tdap', 10009, DATE '2023-09-25', 'N', 'School Nurse');
+INSERT INTO Vaccinations (vaccineName, studentID, dateGiven, isMandatory, administeredBy) VALUES('Hib', 10010, DATE '2023-10-30', 'N', 'School Nurse');
+
+
+-- Insert commands for MinorPatient table
+INSERT INTO MinorPatient (minorPatientID) VALUES (10001);
+INSERT INTO MinorPatient (minorPatientID) VALUES (10002);
+INSERT INTO MinorPatient (minorPatientID) VALUES (10003);
+INSERT INTO MinorPatient (minorPatientID) VALUES (10004);
+INSERT INTO MinorPatient (minorPatientID) VALUES (10005);
+INSERT INTO MinorPatient (minorPatientID) VALUES (10006);
+INSERT INTO MinorPatient (minorPatientID) VALUES (10007);
+INSERT INTO MinorPatient (minorPatientID) VALUES (10008);
+INSERT INTO MinorPatient (minorPatientID) VALUES (10009);
+INSERT INTO MinorPatient (minorPatientID) VALUES (10010);
+
+
+-- Insert commands for LegalGuardian table
+INSERT INTO LegalGuardian (minorPatientID, name, dateOfBirth, primaryModeOfContact, relationToPatient) VALUES (10001, 'John Doe', DATE '1970-05-15', 'Phone', 'Father');
+INSERT INTO LegalGuardian (minorPatientID, name, dateOfBirth, primaryModeOfContact, relationToPatient) VALUES(10002, 'Susan Smith', DATE '1975-07-20', 'Email', 'Mother');
+INSERT INTO LegalGuardian (minorPatientID, name, dateOfBirth, primaryModeOfContact, relationToPatient) VALUES(10003, 'Michael Johnson', DATE '1968-11-30', 'Phone', 'Father');
+INSERT INTO LegalGuardian (minorPatientID, name, dateOfBirth, primaryModeOfContact, relationToPatient) VALUES(10004, 'Emily Williams', DATE '1980-03-25', 'Email', 'Mother');
+INSERT INTO LegalGuardian (minorPatientID, name, dateOfBirth, primaryModeOfContact, relationToPatient) VALUES(10005, 'Christopher Brown', DATE '1972-09-10', 'Phone', 'Father');
+INSERT INTO LegalGuardian (minorPatientID, name, dateOfBirth, primaryModeOfContact, relationToPatient) VALUES(10006, 'Jennifer Jones', DATE '1978-01-05', 'Email', 'Guardian');
+INSERT INTO LegalGuardian (minorPatientID, name, dateOfBirth, primaryModeOfContact, relationToPatient) VALUES(10007, 'Robert Garcia', DATE '1974-06-20', 'Phone', 'Father');
+INSERT INTO LegalGuardian (minorPatientID, name, dateOfBirth, primaryModeOfContact, relationToPatient) VALUES(10008, 'Jessica Martinez', DATE '1985-04-15', 'Email', 'Mother');
+INSERT INTO LegalGuardian (minorPatientID, name, dateOfBirth, primaryModeOfContact, relationToPatient) VALUES(10009, 'Daniel Hernandez', DATE '1982-08-30', 'Phone', 'Father');
+INSERT INTO LegalGuardian (minorPatientID, name, dateOfBirth, primaryModeOfContact, relationToPatient) VALUES(10010, 'Amanda Young', DATE '1977-12-10', 'Email', 'Mother');
+
+
